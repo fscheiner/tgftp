@@ -2206,6 +2206,7 @@ if [[ "$CONNECTION_TEST_SET" != "0" && \
 "$( cat $_tmpTransferList )\n"\
 "</GSIFTP_TRANSFER_LIST>\n"\
 	>> "$GSIFTP_TRANSFER_LOG_FILENAME"
+	rm -f "$_tmpTransferList"
 	
 	sizeUnit=$( get_unit $GSIFTP_TRANSFER_LENGTH )
 	# remove any trailing size unit from transfer size
