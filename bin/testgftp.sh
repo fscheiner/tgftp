@@ -4,7 +4,7 @@
 
 :<<COPYRIGHT
 
-Copyright (C) 2010, 2011, 2014 Frank Scheiner, HLRS, Universitaet Stuttgart
+Copyright (C) 2010-2011, 2014-2015 Frank Scheiner, HLRS, Universitaet Stuttgart
 Copyright (C) 2012 Frank Scheiner
 
 The program is distributed under the terms of the GNU General Public License
@@ -35,7 +35,7 @@ trap - SIGINT
 # for its created files there (see manpage for details).
 unset TMPDIR
 
-VERSION="0.7.0"
+VERSION="0.7.1"
 
 #  The version numbering of tgftp tries to follow the "Semantic Versioning 
 #+ 2.0.0-rc.1" specification avilable on <http://semver.org/>.
@@ -497,7 +497,7 @@ General Options:
                         with guc source and destination URLs, this option can be
                         omitted.
 
-[--target|-t gsiftpTargetUrl]
+[--target|-t|--destination|-d gsiftpTargetUrl]
                         Determine the target URL for the transfer to test. If
                         the gsiftpParameters contain a "-f"  and provide a file
                         with guc source and destination URLs, this option can be
@@ -1616,7 +1616,7 @@ while [[ "$1" != "" ]]; do
 		"$1" != "--help-batchfile" && \
                 "$1" != "--force-log-overwrite" && \
 		"$1" != "--source" && "$1" != "-s" && \
-		"$1" != "--target" && "$1" != "-t" && \
+		"$1" != "--target" && "$1" != "-t" && "$1" != "--destination" && "$1" != "-d" && \
 		"$1" != "--connection-test" && "$1" != "-c" && \
 		"$1" != "--version" && "$1" != "-V" && \
 		"$1" != "--timeout" && "$1" != "-k" && \
@@ -1684,8 +1684,8 @@ while [[ "$1" != "" ]]; do
 			exit "$_tgftp_exit_usage"
 		fi
 
-	#  "--target|-t <GSIFTP_TARGET_URL>"
-	elif [[ "$1" == "--target" || "$1" == "-t" ]]; then
+	#  "--target|-t|--destination|-d <GSIFTP_TARGET_URL>"
+	elif [[ "$1" == "--target" || "$1" == "-t" || "$1" == "--destination" || "$1" == "-d" ]]; then
 		if [[ "$GSIFTP_TARGET_URL_SET" != "0" ]]; then
 			shift 1
 			GSIFTP_TARGET_URL="$1"
