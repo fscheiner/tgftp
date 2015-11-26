@@ -1484,9 +1484,10 @@ listTransfer/getTransferSizeFromTransferList() {
 	local _transferList="$1"
 
 	#  format of transfer list (guc v8.2):
-	#													offset
-	#  source					     destination					|    size, modify timestamp and permissions
-	#  |						  |						  |    |
+	#                                                                                                        offset
+	#                                                                                                        | length ("-1" means until EOF)
+	#  source                                             destination                                        | |  size, modify timestamp and permissions
+	#  |                                                  |                                                  | |  |
 	#  "ftp://vserver1.asc:2811/~/files/test4/file.00355" "ftp://vserver2.asc:2811/~/files/test4/file.00355" 0,-1 size=0;modify=1328981550;mode=0644;
 
 	#  get all file sizes of the transfer list, one each line and strip
