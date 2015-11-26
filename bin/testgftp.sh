@@ -1269,14 +1269,16 @@ process_batchfile()
                                         cut -d ' ' -f 1 >> .perfValues
 				fi
 				#autotuning#####################################
-
-				rm -f "$TGFTP_COMMAND"
 			else
 				if [[ ! $autoTuning -eq 0 ]]; then
 					echo " Test #${DATA_LINE_NUMBER}_${EXEC_COUNTER} failed!"
+					echo -n "tgftp command output was: "
+					cat "${TGFTP_COMMAND}.output"
 				fi
-				mv "$TGFTP_COMMAND" "${TGFTP_COMMAND}_#$DATA_LINE_NUMBER"
+				# no longer needed, tgftp command is now logged in the logfile
+				#mv "$TGFTP_COMMAND" "${TGFTP_COMMAND}_#$DATA_LINE_NUMBER"
 			fi
+			rm -f "${TGFTP_COMMAND}.output"
 
 			EXEC_COUNTER=$(($EXEC_COUNTER + 1))
 		done
