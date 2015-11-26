@@ -1842,14 +1842,14 @@ elif [[ "$AUTO_TUNING_SET" == "0" ]]; then
 fi
 
 #  logfile already existing?
-if [[ "$GSIFTP_TRANSFER_LOG_FILENAME" != "" && -e "$GSIFTP_TRANSFER_LOG_FILENAME" ]]; then
-        if [[ "$FORCE_LOG_OVERWRITE_SET" == "0" ]]; then
-            : # do nothing, just continue
-        else
-            echo "$_selfName: the logfile named \"$GSIFTP_TRANSFER_LOG_FILENAME\" already exists! Refusing to overwrite!" 1>&2
-            exit "$_tgftp_exit_usage"
-        fi
-fi
+#if [[ "$GSIFTP_TRANSFER_LOG_FILENAME" != "" && -e "$GSIFTP_TRANSFER_LOG_FILENAME" ]]; then
+#        if [[ "$FORCE_LOG_OVERWRITE_SET" == "0" ]]; then
+#            : # do nothing, just continue
+#        else
+#            echo "$_selfName: the logfile named \"$GSIFTP_TRANSFER_LOG_FILENAME\" already exists! Refusing to overwrite!" 1>&2
+#            exit "$_tgftp_exit_usage"
+#        fi
+#fi
 
 #  is this a connection test?
 if [[ "$CONNECTION_TEST_SET" == "0" ]]; then
@@ -2053,8 +2053,19 @@ if [[ -e "$GSIFTP_TRANSFER_LOG_FILENAME" ]]; then
             #  truncate file
             > "$GSIFTP_TRANSFER_LOG_FILENAME"
         else
-            echo "$_selfName: the logfile named \"$GSIFTP_TRANSFER_LOG_FILENAME\" already exists! Refusing to overwrite!" 1>&2
-            exit "$_tgftp_exit_usage"
+		# create a new file with a different name
+		_counter=0
+		GSIFTP_TRANSFER_LOG_FILENAME="$GSIFTP_TRANSFER_LOG_FILENAME~${_counter}~"
+		while [[ -e "$GSIFTP_TRANSFER_LOG_FILENAME" ]]; do
+
+			_counter=$(( $_counter + 1 ))
+			GSIFTP_TRANSFER_LOG_FILENAME=${GSIFTP_TRANSFER_LOG_FILENAME%~*~}
+			GSIFTP_TRANSFER_LOG_FILENAME="$GSIFTP_TRANSFER_LOG_FILENAME~${_counter}~"
+
+		done
+		touch "$GSIFTP_TRANSFER_LOG_FILENAME"
+            #echo "$_selfName: the logfile named \"$GSIFTP_TRANSFER_LOG_FILENAME\" already exists! Refusing to overwrite!" 1>&2
+            #exit "$_tgftp_exit_usage"
         fi
 fi
 ################################################################################
