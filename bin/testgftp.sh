@@ -1246,6 +1246,9 @@ process_batchfile()
 
 			kill "$_indicateProgressPid" &>/dev/null
 			wait "$_indicateProgressPid" &>/dev/null
+
+			rm -f "$TGFTP_COMMAND"
+
 			#  save the tgftp command exit value, but don't
 			#+ overwrite possible errors
 			if [[ "$TGFTP_COMMAND_EXIT_VALUE" == "0" ]]; then
