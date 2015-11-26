@@ -50,6 +50,9 @@ _selfName=$( basename $0 )
 
 _tgftpCommandLine="$0 $@"
 
+_defaultProgressIndicator="."
+_defaultProgressIndicationPeriod="2" # 2 seconds
+
 ################################################################################
 #  EXIT CODES
 ################################################################################
@@ -938,6 +941,21 @@ createAutoTuningBatchJob()
 	return 0
 }
 
+tgftp/indicateProgress()
+{
+	local _progressIndicator="$1"
+	local _progressIndicationPeriod="$2"
+
+	while [ 1 ]; do
+
+		echo -n "$_progressIndicator"
+
+		$SLEEP_BIN "$_progressIndicationPeriod"
+	done
+
+	return
+}
+
 #  this function handles batchfiles
 process_batchfile()
 {
@@ -1212,23 +1230,22 @@ process_batchfile()
 						"--" "$GSIFTP_PARAMS" > "$TGFTP_COMMAND"
 			fi
 
-			bash "$TGFTP_COMMAND" &>/dev/null &
 
-			TGFTP_COMMAND_PID="$!"
 
 			#  indicate progress (but only if not in auto tuning
 			#+ mode)
 			if [[ ! $autoTuning -eq 0 ]]; then
-				while ps -p$TGFTP_COMMAND_PID &>/dev/null; do
-					echo -n "."
-					$SLEEP_BIN 0.5
-				done
+
+				tgftp/indicateProgress "$_defaultProgressIndicator" "$_defaultProgressIndicationPeriod" &
+				local _indicateProgressPid=$!
+
 			fi
 
-			wait $TGFTP_COMMAND_PID
-
+			bash "$TGFTP_COMMAND" &>"${TGFTP_COMMAND}.output"
 			TGFTP_COMMAND_EXIT_VALUE_TMP="$?"
-	
+
+			kill "$_indicateProgressPid" &>/dev/null
+			wait "$_indicateProgressPid" &>/dev/null
 			#  save the tgftp command exit value, but don't
 			#+ overwrite possible errors
 			if [[ "$TGFTP_COMMAND_EXIT_VALUE" == "0" ]]; then
