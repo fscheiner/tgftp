@@ -1937,9 +1937,47 @@ fi
 ################################################################################
 #  traps
 ################################################################################
-trap 'rm_fifo $FIFO; rm -f "${GSIFTP_TRANSFER_COMMAND}_KILLED" "$GSIFTP_TRANSFER_COMMAND" "$$_testgftp.sh.log"' EXIT
+#trap 'rm_fifo $FIFO; rm -f "${GSIFTP_TRANSFER_COMMAND}_KILLED" "$GSIFTP_TRANSFER_COMMAND" "$$_testgftp.sh.log"' EXIT
 #  trap SIGINT but wait until "#  MARK X" before killing yourself with SIGINT.
-trap '_sigintReceived=1; trap - SIGINT' SIGINT
+#trap '_sigintReceived=1; trap - SIGINT' SIGINT
+
+#trap 'kill -SIGINT ' SIGINT
+
+onSigint()
+{
+	onExit
+
+	trap - SIGINT
+
+	kill -SIGINT $$
+
+	return
+}
+
+trap 'onSigint' SIGINT
+
+onExit()
+{
+	rm_fifo $FIFO
+	rm -f "${GSIFTP_TRANSFER_COMMAND}_KILLED" "$GSIFTP_TRANSFER_COMMAND" "$$_testgftp.sh.log"
+
+	#echo "DEBUG4: $( jobs -p )" 1>&2
+
+	for _pid in $( jobs -p ); do
+
+	#	echo "DEBUG2: $_pid" 1>&2
+
+		if kill -0 $_pid &>/dev/null; then
+
+			kill $_pid &>/dev/null
+			wait $_pid &>/dev/null
+		fi
+	done
+
+	return
+}
+
+trap 'onExit' EXIT
 
 ################################################################################
 #  execute pre-command if needed
@@ -2197,7 +2235,7 @@ elif [[ $_gucSIGINTed -eq 1 ]]; then
 	>> "$GSIFTP_TRANSFER_LOG_FILENAME"
         echo -e "\n$_selfName: \"globus-url-copy\" was interrupted." 1>&2
 
-	if [[ $_sigintReceived -eq 0 ]]; then
+	#if [[ $_sigintReceived -eq 0 ]]; then
 		#echo "($$) DEBUG: SIGINT received." 1>&2
 		
 		#  NOTICE:
@@ -2207,9 +2245,9 @@ elif [[ $_gucSIGINTed -eq 1 ]]; then
 		#+ intended.
 		
 		#  MARK X
-		kill -SIGINT $$		
-	fi
-	kill -SIGINT $$
+	#	kill -SIGINT $$		
+	#fi
+	#kill -SIGINT $$
 
 #  Did the transfer work?
 elif [[ "$GSIFTP_EXIT_VALUE" != "0" ]]; then
