@@ -2133,35 +2133,37 @@ fi
 
 #  comment set by user?
 if  echo "$GSIFTP_TRANSFER_LOG_COMMENT" | $GREP_BIN '^#'; then
+
 	#  text-only comment, don't evaluate the string	
-	echo -en \
-"<GSIFTP_TRANSFER_LOG_COMMENT>\n"\
-"$GSIFTP_TRANSFER_LOG_COMMENT"\
-"\n</GSIFTP_TRANSFER_LOG_COMMENT>\n"\
-	>> "$GSIFTP_TRANSFER_LOG_FILENAME"
+	cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
+		<GSIFTP_TRANSFER_LOG_COMMENT>
+		$GSIFTP_TRANSFER_LOG_COMMENT
+		</GSIFTP_TRANSFER_LOG_COMMENT>
+	EOF
 else
 	#  seems to be a command, do evaluate the string
-	echo -en \
-"<GSIFTP_TRANSFER_LOG_COMMENT>\n"\
-"$(eval $GSIFTP_TRANSFER_LOG_COMMENT)"\
-"\n</GSIFTP_TRANSFER_LOG_COMMENT>\n"\
-	>> "$GSIFTP_TRANSFER_LOG_FILENAME"
+	cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
+		<GSIFTP_TRANSFER_LOG_COMMENT>
+		$( eval $GSIFTP_TRANSFER_LOG_COMMENT )
+		</GSIFTP_TRANSFER_LOG_COMMENT>
+	EOF
 fi
 ################################################################################
 
 # save tgftp command line
-echo -en \
-"<TGFTP_COMMAND>\n"\
-"$_tgftpCommandLine\n"\
-"</TGFTP_COMMAND>\n"\
->> "$GSIFTP_TRANSFER_LOG_FILENAME"
+cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
+	<TGFTP_COMMAND>
+	$_tgftpCommandLine
+	</TGFTP_COMMAND>
+EOF
+
 
 #  save "globus-url-copy" command
-echo -en \
-"<GSIFTP_TRANSFER_COMMAND>\n"\
-$(cat "$GSIFTP_TRANSFER_COMMAND" | $SED_BIN -e 's/^exec //' -e 's/\ &>.*//')\
-"\n</GSIFTP_TRANSFER_COMMAND>\n"\
->> "$GSIFTP_TRANSFER_LOG_FILENAME"
+cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
+	<GSIFTP_TRANSFER_COMMAND>
+	$( cat "$GSIFTP_TRANSFER_COMMAND" | $SED_BIN -e 's/^exec //' -e 's/\ &>.*//' )
+	</GSIFTP_TRANSFER_COMMAND>
+EOF
 
 #  remove temp file
 rm -f "$GSIFTP_TRANSFER_COMMAND"
@@ -2187,52 +2189,55 @@ if grep '^Cancelling copy...$' < $$_testgftp.sh.log &>/dev/null || \
 fi
 
 #  save output of "globus-url-copy" command
-echo -en \
-"<GSIFTP_TRANSFER_COMMAND_OUTPUT>\n"\
->> "$GSIFTP_TRANSFER_LOG_FILENAME"
+cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
+	<GSIFTP_TRANSFER_COMMAND_OUTPUT>
+EOF
 
 cat $$_testgftp.sh.log >> "$GSIFTP_TRANSFER_LOG_FILENAME"
 
-echo -en \
-"\n</GSIFTP_TRANSFER_COMMAND_OUTPUT>\n"\
->> "$GSIFTP_TRANSFER_LOG_FILENAME"
+cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
+	</GSIFTP_TRANSFER_COMMAND_OUTPUT>
+EOF
 
 rm $$_testgftp.sh.log
 ################################################################################
 
 
 #  add start and end timestamps:
-echo -en \
-"<GSIFTP_TRANSFER_START>\n"\
-"$($DATE_BIN -d "1970-01-01 UTC + $GSIFTP_START_DATE seconds" +%Y-%m-%d_%H:%M:%S)"\
-"\n</GSIFTP_TRANSFER_START>\n"\
->> "$GSIFTP_TRANSFER_LOG_FILENAME"
+cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
+	<GSIFTP_TRANSFER_START>
+	$( $DATE_BIN -d @$GSIFTP_START_DATE +%Y-%m-%d_%H:%M:%S )
+	</GSIFTP_TRANSFER_START>
+EOF
 
-echo -en \
-"<GSIFTP_TRANSFER_END>\n"\
-"$($DATE_BIN -d "1970-01-01 UTC + $GSIFTP_END_DATE seconds" +%Y-%m-%d_%H:%M:%S)"\
-"\n</GSIFTP_TRANSFER_END>\n"\
->> "$GSIFTP_TRANSFER_LOG_FILENAME"
+#echo -en \
+cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
+	<GSIFTP_TRANSFER_END>
+	$( $DATE_BIN -d @$GSIFTP_END_DATE +%Y-%m-%d_%H:%M:%S )
+	</GSIFTP_TRANSFER_END>
+EOF
 ################################################################################
 
 #  Did the globus-url-copy command time out and was killed?
 if [[ -e "${GSIFTP_TRANSFER_COMMAND}_KILLED" ]]; then
+
         rm - f "${GSIFTP_TRANSFER_COMMAND}_KILLED" &>/dev/null
-        echo -en \
-"<GSIFTP_TRANSFER_ERROR>\n"\
-"ERROR: \"globus-url-copy\" timed out."\
-"\n</GSIFTP_TRANSFER_ERROR>\n"\
-	>> "$GSIFTP_TRANSFER_LOG_FILENAME"
-        echo -e "\n$_selfName: \"globus-url-copy\" timed out. Please see \""$GSIFTP_TRANSFER_LOG_FILENAME"\" for details." 1>&2
+        cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
+		<GSIFTP_TRANSFER_ERROR>
+		ERROR: \"globus-url-copy\" timed out.
+		</GSIFTP_TRANSFER_ERROR>
+	EOF
+        echo -e "\n$_selfName: \"globus-url-copy\" timed out. Please see \""$GSIFTP_TRANSFER_LOG_FILENAME"\" for details (the level of detail depends on the used settings for globus-url-copy!)." 1>&2
         exit "$_tgftp_exit_timeout"
 
 #  Was guc interrupted?
 elif [[ $_gucSIGINTed -eq 1 ]]; then
-	echo -en \
-"<GSIFTP_TRANSFER_ERROR>\n"\
-"ERROR: \"globus-url-copy\" was interrupted.\n"\
-"</GSIFTP_TRANSFER_ERROR>\n"\
-	>> "$GSIFTP_TRANSFER_LOG_FILENAME"
+
+	cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
+		<GSIFTP_TRANSFER_ERROR>
+		ERROR: \"globus-url-copy\" was interrupted.
+		</GSIFTP_TRANSFER_ERROR>
+	EOF
         echo -e "\n$_selfName: \"globus-url-copy\" was interrupted." 1>&2
 
 	#if [[ $_sigintReceived -eq 0 ]]; then
@@ -2251,12 +2256,13 @@ elif [[ $_gucSIGINTed -eq 1 ]]; then
 
 #  Did the transfer work?
 elif [[ "$GSIFTP_EXIT_VALUE" != "0" ]]; then
-        echo -en \
-"<GSIFTP_TRANSFER_ERROR>\n"\
-"ERROR: \"globus-url-copy\" failed."\
-"\n</GSIFTP_TRANSFER_ERROR>\n"\
-	>> "$GSIFTP_TRANSFER_LOG_FILENAME"
-        echo -e "\n$_selfName: \"globus-url-copy\" failed. Please see \""$GSIFTP_TRANSFER_LOG_FILENAME"\" for details." 1>&2
+        
+	cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
+		<GSIFTP_TRANSFER_ERROR>
+		ERROR: \"globus-url-copy\" failed.
+		</GSIFTP_TRANSFER_ERROR>
+	EOF
+        echo -e "\n$_selfName: \"globus-url-copy\" failed. Please see \""$GSIFTP_TRANSFER_LOG_FILENAME"\" for details (the level of detail depends on the used settings for globus-url-copy!)." 1>&2
         exit 1        
         
 fi
@@ -2271,12 +2277,12 @@ if [[ "$CONNECTION_TEST_SET" != "0" && \
 ]]; then
 
 	_tmpTransferList=$( listTransfer/createTransferList "$GSIFTP_SOURCE_URL" "$GSIFTP_TARGET_URL" )
-	# save transfer list
-	echo -en \
-"<GSIFTP_TRANSFER_LIST>\n"\
-"$( cat $_tmpTransferList )\n"\
-"</GSIFTP_TRANSFER_LIST>\n"\
-	>> "$GSIFTP_TRANSFER_LOG_FILENAME"
+	
+	cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
+		<GSIFTP_TRANSFER_LIST>
+		$( cat $_tmpTransferList )
+		</GSIFTP_TRANSFER_LIST>
+	EOF
 	rm -f "$_tmpTransferList"
 	
 	sizeUnit=$( get_unit $GSIFTP_TRANSFER_LENGTH )
@@ -2284,22 +2290,22 @@ if [[ "$CONNECTION_TEST_SET" != "0" && \
 	GSIFTP_TRANSFER_LENGTH_W_O_UNIT=${GSIFTP_TRANSFER_LENGTH%%[[:alpha:]]}
 
 	# save transfer size
-	echo -en \
-"<GSIFTP_TRANSFER_SIZE>\n"\
-"$GSIFTP_TRANSFER_LENGTH_W_O_UNIT $sizeUnit\n"\
-"</GSIFTP_TRANSFER_SIZE>\n"\
-	>> "$GSIFTP_TRANSFER_LOG_FILENAME"
-
+	
+	cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
+		<GSIFTP_TRANSFER_SIZE>
+		$GSIFTP_TRANSFER_LENGTH_W_O_UNIT $sizeUnit
+		</GSIFTP_TRANSFER_SIZE>
+	EOF
 	GSIFTP_TRANSFER_RATE=$( tgftp/calcTransferRate "$GSIFTP_START_DATE" "$GSIFTP_END_DATE" "$GSIFTP_TRANSFER_LENGTH" )
 
-	#  output transfer rate (including time needed for connection) to screen
+	# output transfer rate (including time needed for connection) to screen
         echo -e "\n$GSIFTP_TRANSFER_RATE MB/s"
-	#  ...and append it to the log
-        echo -en \
-"<GSIFTP_TRANSFER_RATE>\n"\
-"$GSIFTP_TRANSFER_RATE MB/s\n"\
-"</GSIFTP_TRANSFER_RATE>\n"\
-	>> "$GSIFTP_TRANSFER_LOG_FILENAME"
+	
+	cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
+		<GSIFTP_TRANSFER_RATE>
+		$GSIFTP_TRANSFER_RATE MB/s
+		</GSIFTP_TRANSFER_RATE>
+	EOF
 	
 elif [[ "$GSIFTP_TRANSFER_LENGTH" == "" && \
       ! $_gucSIGINTed -eq 1 \
@@ -2325,20 +2331,20 @@ elif [[ "$GSIFTP_TRANSFER_LENGTH" == "" && \
 			_tmpTransferList=$( listTransfer/createTransferList "$GSIFTP_SOURCE_URL" "$GSIFTP_TARGET_URL" )
 			_transferSize=$( listTransfer/getTransferSizeFromTransferList "$_tmpTransferList" )
 			# save transfer list
-			echo -en \
-"<GSIFTP_TRANSFER_LIST>\n"\
-"$( cat $_tmpTransferList )\n"\
-"</GSIFTP_TRANSFER_LIST>\n"\
-			>> "$GSIFTP_TRANSFER_LOG_FILENAME"
+			cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
+				<GSIFTP_TRANSFER_LIST>
+				$( cat $_tmpTransferList )
+				</GSIFTP_TRANSFER_LIST>
+			EOF
 			rm -f "$_tmpTransferList"
 		else
 			_transferSize=$( listTransfer/getTransferSizeFromTransferList "$_transferList" )
 			# save transfer list
-			echo -en \
-"<GSIFTP_TRANSFER_LIST>\n"\
-"$( cat $_transferList )\n"\
-"</GSIFTP_TRANSFER_LIST>\n"\
-			>> "$GSIFTP_TRANSFER_LOG_FILENAME"
+			cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
+				<GSIFTP_TRANSFER_LIST>
+				$( cat $_transferList )
+				</GSIFTP_TRANSFER_LIST>
+			EOF
 		fi
 		
 
@@ -2346,22 +2352,22 @@ elif [[ "$GSIFTP_TRANSFER_LENGTH" == "" && \
 		#echo "TIMING: After transfer length auto-detection: $( date )" 1>&2
 		
 		# save transfer size
-		echo -en \
-"<GSIFTP_TRANSFER_SIZE>\n"\
-"$_transferSize B\n"\
-"</GSIFTP_TRANSFER_SIZE>\n"\
-		>> "$GSIFTP_TRANSFER_LOG_FILENAME"
-	
+		cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
+			<GSIFTP_TRANSFER_SIZE>
+			$_transferSize B
+			</GSIFTP_TRANSFER_SIZE>
+		EOF
+
 		GSIFTP_TRANSFER_RATE=$( tgftp/calcTransferRate "$GSIFTP_START_DATE" "$GSIFTP_END_DATE" "$_transferSize" )
 
-		#  output transfer rate (including time needed for connection) to screen
+		# output transfer rate (including time needed for connection) to screen...
 		echo -e "\n$GSIFTP_TRANSFER_RATE MB/s"
-		#   and append it to the log
-		echo -en \
-"<GSIFTP_TRANSFER_RATE>\n"\
-"$GSIFTP_TRANSFER_RATE MB/s\n"\
-"</GSIFTP_TRANSFER_RATE>\n"\
-		>> "$GSIFTP_TRANSFER_LOG_FILENAME"
+		# ...and append it to the log
+		cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
+			<GSIFTP_TRANSFER_RATE>
+			$GSIFTP_TRANSFER_RATE MB/s
+			</GSIFTP_TRANSFER_RATE>
+		EOF
 	fi
 	
 elif [[ "$CONNECTION_TEST_SET" == "0" ]]; then
