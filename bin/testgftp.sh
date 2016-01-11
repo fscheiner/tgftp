@@ -957,29 +957,27 @@ tgftp/indicateProgress()
 	return
 }
 
-#  this function handles batchfiles
+# this function enables file numbering with leading zeroes for up to 1000 files
+get_file_number()
+{
+	local counter="$1"
+
+	if [[ "$counter" -lt 10 ]]; then
+	        file_number="00$counter"
+	elif [[ "$counter" -lt 100 ]]; then
+	        file_number="0$counter"
+	else
+	        file_number="$counter"
+	fi
+
+	echo "$file_number"
+
+	return
+}
+
+# this function handles batchfiles
 process_batchfile()
 {
-	#return 0
-
-	#  this function enables file numbering with leading zeroes for up to 1000 files
-	get_file_number()
-	{
-		local counter="$1"
-
-		if [[ "$counter" -lt 10 ]]; then
-		        file_number="00$counter"
-		elif [[ "$counter" -lt 100 ]]; then
-		        file_number="0$counter"
-		else
-		        file_number="$counter"
-		fi
-
-		echo "$file_number"
-
-		return
-	}
-
         local FILE="$1"
 
         #  check if this is a "testgftp.sh" batch file and determine version
