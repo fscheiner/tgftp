@@ -945,8 +945,9 @@ tgftp/indicateProgress()
 {
 	local _progressIndicator="$1"
 	local _progressIndicationPeriod="$2"
+	local _fathersPid="$3"
 
-	while [ 1 ]; do
+	while kill -0 $_fathersPid &>/dev/null; do
 
 		echo -n "$_progressIndicator"
 
@@ -1236,7 +1237,7 @@ process_batchfile()
 			#+ mode)
 			if [[ ! $autoTuning -eq 0 ]]; then
 
-				tgftp/indicateProgress "$_defaultProgressIndicator" "$_defaultProgressIndicationPeriod" &
+				tgftp/indicateProgress "$_defaultProgressIndicator" "$_defaultProgressIndicationPeriod" "$$" &
 				local _indicateProgressPid=$!
 
 			fi
