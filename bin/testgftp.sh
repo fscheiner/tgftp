@@ -1983,8 +1983,8 @@ trap 'onExit' EXIT
 #  execute pre-command if needed
 ################################################################################
 if [[ "$GSIFTP_TRANSFER_PRE_COMMAND" != "" ]]; then
-	eval $GSIFTP_TRANSFER_PRE_COMMAND &
-	wait $!
+	eval $GSIFTP_TRANSFER_PRE_COMMAND
+	#wait $!
 fi
 
 ################################################################################
@@ -2385,8 +2385,8 @@ fi
 if [[ "$GSIFTP_TRANSFER_POST_COMMAND" != "" && \
       "$GSIFTP_EXIT_VALUE" == "0" && \
       $_gucSIGINTed -eq 0 ]]; then
-	eval $GSIFTP_TRANSFER_POST_COMMAND &
-	wait $!
+	eval $GSIFTP_TRANSFER_POST_COMMAND
+	#wait $!
 fi
 
 echo -e "\n$_selfName: please see \""$GSIFTP_TRANSFER_LOG_FILENAME"\" for details."
