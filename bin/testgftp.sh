@@ -2110,8 +2110,8 @@ fi
 #  file already existing?
 if [[ -e "$GSIFTP_TRANSFER_LOG_FILENAME" ]]; then
         if [[ "$FORCE_LOG_OVERWRITE_SET" == "0" ]]; then
-            #  truncate file
-            > "$GSIFTP_TRANSFER_LOG_FILENAME"
+		#  truncate file
+		> "$GSIFTP_TRANSFER_LOG_FILENAME"
         else
 		# create a new file with a different name
 		_counter=0
@@ -2224,18 +2224,18 @@ if [[ $GSIFTP_EXIT_VALUE -eq 124 ]]; then
 
         cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
 		<GSIFTP_TRANSFER_ERROR>
-		ERROR: \"globus-url-copy\" timed out.
+		ERROR: "globus-url-copy" timed out.
 		</GSIFTP_TRANSFER_ERROR>
 	EOF
         echo -e "\n$_selfName: \"globus-url-copy\" timed out. Please see \""$GSIFTP_TRANSFER_LOG_FILENAME"\" for details (the level of detail depends on the used settings for globus-url-copy!)." 1>&2
         exit "$_tgftp_exit_timeout"
 
-#  Was guc interrupted?
+# Was guc interrupted?
 elif [[ $_gucSIGINTed -eq 1 ]]; then
 
 	cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
 		<GSIFTP_TRANSFER_ERROR>
-		ERROR: \"globus-url-copy\" was interrupted.
+		ERROR: "globus-url-copy" was interrupted.
 		</GSIFTP_TRANSFER_ERROR>
 	EOF
         echo -e "\n$_selfName: \"globus-url-copy\" was interrupted." 1>&2
@@ -2254,12 +2254,12 @@ elif [[ $_gucSIGINTed -eq 1 ]]; then
 	#fi
 	#kill -SIGINT $$
 
-#  Did the transfer work?
+# Did the transfer work?
 elif [[ "$GSIFTP_EXIT_VALUE" != "0" ]]; then
         
 	cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
 		<GSIFTP_TRANSFER_ERROR>
-		ERROR: \"globus-url-copy\" failed.
+		ERROR: "globus-url-copy" failed.
 		</GSIFTP_TRANSFER_ERROR>
 	EOF
         echo -e "\n$_selfName: \"globus-url-copy\" failed. Please see \""$GSIFTP_TRANSFER_LOG_FILENAME"\" for details (the level of detail depends on the used settings for globus-url-copy!)." 1>&2
@@ -2389,7 +2389,7 @@ if [[ "$GSIFTP_TRANSFER_POST_COMMAND" != "" && \
 	#wait $!
 fi
 
-echo -e "\n$_selfName: please see \""$GSIFTP_TRANSFER_LOG_FILENAME"\" for details."
+echo -e "\n$_selfName: please see \""$GSIFTP_TRANSFER_LOG_FILENAME"\" for details (the level of detail depends on the used settings for globus-url-copy!)."
 
 exit "$GSIFTP_EXIT_VALUE"
 
