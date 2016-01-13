@@ -2218,10 +2218,10 @@ cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
 EOF
 ################################################################################
 
-#  Did the globus-url-copy command time out and was killed?
-if [[ -e "${GSIFTP_TRANSFER_COMMAND}_KILLED" ]]; then
+# Did the globus-url-copy command time out and was killed?
+# `timeout` exits with 124 if the command times out (see timeout(1) for details)
+if [[ $GSIFTP_EXIT_VALUE -eq 124 ]]; then
 
-        rm - f "${GSIFTP_TRANSFER_COMMAND}_KILLED" &>/dev/null
         cat <<-EOF >> "$GSIFTP_TRANSFER_LOG_FILENAME"
 		<GSIFTP_TRANSFER_ERROR>
 		ERROR: \"globus-url-copy\" timed out.
